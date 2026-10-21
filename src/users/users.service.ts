@@ -105,9 +105,6 @@ export class UsersService {
             ...(dto.mobileNumber  !== undefined && {
                 mobileNumber : dto.mobileNumber,
             }),
-            ...(dto.mobileNumber  !== undefined && {
-                mobileNumber : dto.mobileNumber,
-            }),
             ...(dto.whatsappReminders   !== undefined && {
                 whatsappReminders  : dto.whatsappReminders,
             }),
@@ -153,7 +150,7 @@ export class UsersService {
         }
 
         try {
-            return this.prismaService.client.user.update({
+            return await this.prismaService.client.user.update({
             where: { idUser },
             data: { email: dto.email },
             select: {
@@ -218,4 +215,5 @@ export class UsersService {
             message: 'Password changed successfully'
         };
     }
+
 }
