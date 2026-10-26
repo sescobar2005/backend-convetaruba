@@ -19,22 +19,49 @@ enum Role {
 }
 
 model User {
-  idUser String @id @default(uuid()) @db.Uuid
-  firstName String
-  lastName String
-  email String @unique
+  idUser       String   @id @default(uuid()) @db.Uuid
+  firstName    String
+  lastName     String
+  email        String   @unique
   mobileNumber String
   passwordHash String
-  role Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  termsAcceptedAt           DateTime?
-  termsVersion              String?
-  privacyPolicyAcceptedAt   DateTime?
-  privacyPolicyVersion      String?
+  termsAcceptedAt         DateTime?
+  termsVersion            String?
+  privacyPolicyAcceptedAt DateTime?
+  privacyPolicyVersion    String?
 
-  whatsappReminders         Boolean  @default(false)
+  whatsappReminders Boolean @default(false)
 
   tokenVersion Int @default(0)
+}
+
+model ServiceCategory {
+  idCategory  String   @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  services Service[]
+}
+
+model Service {
+  idService        String   @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String   @unique
+  description      String?
+  shortDescription String?
+  isPublished      Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  categoryId       String           @db.Uuid
+  category         ServiceCategory @relation(fields: [categoryId], references: [idCategory], onDelete: Restrict)
 }
