@@ -1,64 +1,85 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { NotFoundException } from '@nestjs/common';
 import { createUsersServiceTestContext } from './users.service.test-utils.js';
 
 describe('UsersService - findById', () => {
+    let service: ReturnType<typeof createUsersServiceTestContext>['service'];
+    let prismaMock: ReturnType<typeof createUsersServiceTestContext>['prismaMock'];
 
-  let service: ReturnType<typeof createUsersServiceTestContext>['service'];
-  let prismaMock: ReturnType<typeof createUsersServiceTestContext>['prismaMock'];
+    beforeEach(() => {
+        ({ service, prismaMock } = createUsersServiceTestContext());
+    });
 
-  beforeEach(() => {
-      ({ service, prismaMock } = createUsersServiceTestContext());
-  });
+    const userId = '7b8e3c2a-9f41-4d65-8a12-3e6f5c0b9a74';
 
-  it('should return a user without sensitive fields', async () => {
-    const user = {
-      idUser: 'user-123',
-      firstName: 'Ana',
-      lastName: 'Gomez',
-      email: 'ana@example.com',
-      mobileNumber: '3001234567',
-      role: 'CUSTOMER',
-      createdAt: new Date('2026-01-01T10:00:00Z'),
-      updatedAt: new Date('2026-01-02T10:00:00Z'),
-      whatsappReminders: false,
+    const existingUser = {
+        idUser: userId,
+        firstName: 'Ana',
+        lastName: 'Gómez',
+        email: 'ana.gomez@example.com',
+        mobileNumber: '3001234567',
+        role: 'CUSTOMER',
+        createdAt: new Date('2026-01-15T14:30:00.000Z'),
+        updatedAt: new Date('2026-01-20T09:15:00.000Z'),
+        whatsappReminders: false,
     };
 
-    prismaMock.client.user.findUnique.mockResolvedValue(user);
+    it('should return the user when the ID exists', async () => {
+        prismaMock.client.user.findUnique.mockResolvedValue(existingUser);
 
-    const result = await service.findById('user-123');
+        const result = await service.findById(userId);
 
-    expect(result).toEqual(user);
-    expect(result).not.toHaveProperty('passwordHash');
+        expect(result).toEqual(existingUser);
 
-    expect(prismaMock.client.user.findUnique).toHaveBeenCalledWith({
-      where: { idUser: 'user-123' },
-      select: {
-        idUser: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        mobileNumber: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        whatsappReminders: true,
-      }
+        expect(prismaMock.client.user.findUnique).toHaveBeenCalledOnce();
+        expect(prismaMock.client.user.findUnique).toHaveBeenCalledWith({
+            where: { idUser: userId },
+            select: {
+                idUser: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                mobileNumber: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true,
+                whatsappReminders: true,
+            },
+        });
+
+        expect(result).not.toHaveProperty('password');
+        expect(result).not.toHaveProperty('passwordHash');
     });
-  });
 
-  it('should throw NotFoundException when the user does not exist', async () => {
-    prismaMock.client.user.findUnique.mockResolvedValue(null);
+    it('should throw NotFoundException when the user does not exist', async () => {
+        prismaMock.client.user.findUnique.mockResolvedValue(null);
 
-    await expect(service.findById('unknown-user')).rejects.toThrow(
-      NotFoundException
-    );
+        await expect(service.findById(userId))
+            .rejects.toThrow(NotFoundException);
 
-    expect(prismaMock.client.user.findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { idUser: 'unknown-user' },
-      }),
-    );
-  });
-  
+        expect(prismaMock.client.user.findUnique).toHaveBeenCalledWith({
+            where: { idUser: userId },
+            select: {
+                idUser: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                mobileNumber: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true,
+                whatsappReminders: true,
+            },
+        });
+    });
+
+    it('should propagate a database error', async () => {
+        const databaseError = new Error('Database unavailable');
+
+        prismaMock.client.user.findUnique.mockRejectedValue(databaseError);
+
+        await expect(service.findById(userId))
+            .rejects.toBe(databaseError);
+    });
+    
 });

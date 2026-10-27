@@ -3,99 +3,129 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { createUsersServiceTestContext } from './users.service.test-utils.js';
 
-describe('UsersService - changePassword', () => {
+describe('UsersService.changePassword', () => {
+    const userId = '7b8e3c2a-9f41-4d65-8a12-3e6f5c0b9a74';
+    const currentPassword = 'CurrentPassword123!';
+    const newPassword = 'NewPassword456!';
 
     let service: ReturnType<typeof createUsersServiceTestContext>['service'];
     let prismaMock: ReturnType<typeof createUsersServiceTestContext>['prismaMock'];
+    let currentPasswordHash: string;
 
-    beforeEach(() => {
-        ({ service, prismaMock } = createUsersServiceTestContext());
+    beforeEach(async () => {
+        vi.clearAllMocks();
+
+        const context = createUsersServiceTestContext();
+        service = context.service;
+        prismaMock = context.prismaMock;
+
+        currentPasswordHash = await argon2.hash(currentPassword);
     });
 
-    const idUser = 'user-123';
-    const currentPassword = 'OldPassword123*';
-    const newPassword = 'NewPassword456*';
+    it('should change the password successfully', async () => {
+        prismaMock.client.user.findUnique.mockResolvedValue({
+            idUser: userId,
+            passwordHash: currentPasswordHash,
+        });
+
+        prismaMock.client.user.update.mockResolvedValue({
+            idUser: userId,
+        });
+
+        const result = await service.changePassword(userId, {
+            currentPassword,
+            newPassword,
+        });
+
+        expect(prismaMock.client.user.findUnique).toHaveBeenCalledWith({
+            where: { idUser: userId },
+            select: {
+                idUser: true,
+                passwordHash: true,
+            },
+        });
+
+        expect(prismaMock.client.user.update).toHaveBeenCalledTimes(1);
+
+        const updateArguments =
+            prismaMock.client.user.update.mock.calls[0][0];
+
+        expect(updateArguments.where).toEqual({ idUser: userId });
+        expect(updateArguments.data.tokenVersion).toEqual({ increment: 1 });
+        expect(updateArguments.data.passwordHash).not.toBe(currentPasswordHash);
+
+        expect(
+            await argon2.verify(
+                updateArguments.data.passwordHash,
+                newPassword,
+            ),
+        ).toBe(true);
+
+        expect(result).toEqual({
+            message: 'Password changed successfully',
+        });
+    });
 
     it('should throw NotFoundException when the user does not exist', async () => {
         prismaMock.client.user.findUnique.mockResolvedValue(null);
 
         await expect(
-        service.changePassword(idUser, {
-            currentPassword,
-            newPassword
-        })
+            service.changePassword(userId, {
+                currentPassword,
+                newPassword,
+            }),
         ).rejects.toThrow(NotFoundException);
 
         expect(prismaMock.client.user.update).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when the current password is incorrect', async () => {
-        const passwordHash = await argon2.hash(currentPassword);
-
         prismaMock.client.user.findUnique.mockResolvedValue({
-        idUser,
-        passwordHash
+            idUser: userId,
+            passwordHash: currentPasswordHash,
         });
 
         await expect(
-        service.changePassword(idUser, {
-            currentPassword: 'WrongPassword123*',
-            newPassword
-        })
+            service.changePassword(userId, {
+                currentPassword: 'WrongPassword123!',
+                newPassword,
+            }),
         ).rejects.toThrow(BadRequestException);
 
         expect(prismaMock.client.user.update).not.toHaveBeenCalled();
     });
 
-    it('should store the new password as an Argon2 hash', async () => {
-        const passwordHash = await argon2.hash(currentPassword);
+    it('should propagate database errors when looking up the user', async () => {
+        prismaMock.client.user.findUnique.mockRejectedValue(
+            new Error('Database connection failed'),
+        );
 
-        prismaMock.client.user.findUnique.mockResolvedValue({
-        idUser,
-        passwordHash
-        });
+        await expect(
+            service.changePassword(userId, {
+                currentPassword,
+                newPassword,
+            }),
+        ).rejects.toThrow('Database connection failed');
 
-        prismaMock.client.user.update.mockResolvedValue({});
-
-        const result = await service.changePassword(idUser, {
-        currentPassword,
-        newPassword
-        });
-
-        expect(result).toEqual({
-        message: 'Password changed successfully'
-        });
-
-        const updateCall = prismaMock.client.user.update.mock.calls[0][0];
-        const newPasswordHash = updateCall.data.passwordHash;
-
-        expect(newPasswordHash).not.toBe(newPassword);
-
-        expect(await argon2.verify(newPasswordHash, newPassword)).toBe(true);
+        expect(prismaMock.client.user.update).not.toHaveBeenCalled();
     });
 
-    it('should increment tokenVersion when the password changes', async () => {
-        const passwordHash = await argon2.hash(currentPassword);
-
+    it('should propagate database errors when updating the password', async () => {
         prismaMock.client.user.findUnique.mockResolvedValue({
-        idUser,
-        passwordHash
+            idUser: userId,
+            passwordHash: currentPasswordHash,
         });
 
-        prismaMock.client.user.update.mockResolvedValue({});
+        prismaMock.client.user.update.mockRejectedValue(
+            new Error('Password update failed'),
+        );
 
-        await service.changePassword(idUser, {
-        currentPassword,
-        newPassword
-        });
-
-        expect(prismaMock.client.user.update).toHaveBeenCalledWith({
-        where: { idUser },
-        data: {
-            passwordHash: expect.any(String),
-            tokenVersion: { increment: 1 }
-        },
-        });
+        await expect(
+            service.changePassword(userId, {
+                currentPassword,
+                newPassword,
+            }),
+        ).rejects.toThrow('Password update failed');
     });
 
 });
