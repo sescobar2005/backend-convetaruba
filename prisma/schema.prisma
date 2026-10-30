@@ -38,7 +38,7 @@ model User {
 
   tokenVersion Int @default(0)
 
-  pets Pet[]
+  pets  Pet[]
   staff Staff?
 }
 
@@ -65,8 +65,8 @@ model Service {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  categoryId       String           @db.Uuid
-  category         ServiceCategory @relation(fields: [categoryId], references: [idCategory], onDelete: Restrict)
+  categoryId String          @db.Uuid
+  category   ServiceCategory @relation(fields: [categoryId], references: [idCategory], onDelete: Restrict)
 }
 
 enum PetSpecies {
@@ -83,19 +83,18 @@ enum PetSex {
   UNKNOWN
 }
 
-
 model Pet {
-  idPet       String    @id @default(uuid()) @db.Uuid
-  ownerId     String    @db.Uuid
+  idPet       String     @id @default(uuid()) @db.Uuid
+  ownerId     String     @db.Uuid
   name        String
   species     PetSpecies
   breed       String?
   color       String?
   dateOfBirth DateTime?
-  sex         PetSex    @default(UNKNOWN)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  sex         PetSex     @default(UNKNOWN)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   owner User @relation(fields: [ownerId], references: [idUser], onDelete: Restrict)
 }
@@ -118,4 +117,40 @@ model Staff {
   updatedAt   DateTime      @updatedAt
 
   user User @relation(fields: [userId], references: [idUser], onDelete: Restrict)
+
+  staffBranches StaffBranch[]
+}
+
+model Branch {
+  idBranch   String   @id @default(uuid()) @db.Uuid
+  name       String
+  slug       String   @unique
+  address    String
+  city       String
+  department String
+  phone      String?
+  email      String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  staffBranches StaffBranch[]
+}
+
+model StaffBranch {
+  idStaffBranch String    @id @default(uuid()) @db.Uuid
+  staffId       String    @db.Uuid
+  branchId      String    @db.Uuid
+  startDate     DateTime  @default(now())
+  endDate       DateTime?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  staff  Staff  @relation(fields: [staffId], references: [idStaff], onDelete: Restrict)
+  branch Branch @relation(fields: [branchId], references: [idBranch], onDelete: Restrict)
+
+  @@unique([staffId, branchId, startDate])
+  @@index([staffId, isActive])
+  @@index([branchId, isActive])
 }
