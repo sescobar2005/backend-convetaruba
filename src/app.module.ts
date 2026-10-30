@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module.js';
 import { ServicesModule } from './services/services.module.js';
 import { ServiceCategoriesModule } from './service-categories/service-categories.module.js';
 import { PetsModule } from './pets/pets.module.js';
+import { StaffModule } from './staff/staff.module.js';
 
 @Module({
-  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule],
+  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule, StaffModule],
   controllers: [AppController],
   providers: [AppService],
 })

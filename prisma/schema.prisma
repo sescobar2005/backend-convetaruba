@@ -39,6 +39,7 @@ model User {
   tokenVersion Int @default(0)
 
   pets Pet[]
+  staff Staff?
 }
 
 model ServiceCategory {
@@ -97,4 +98,24 @@ model Pet {
   updatedAt   DateTime  @updatedAt
 
   owner User @relation(fields: [ownerId], references: [idUser], onDelete: Restrict)
+}
+
+enum StaffPosition {
+  VETERINARIAN
+  ASSISTANT
+  RECEPTIONIST
+  OTHER
+}
+
+model Staff {
+  idStaff     String        @id @default(uuid()) @db.Uuid
+  userId      String        @unique @db.Uuid
+  staffNumber String        @unique
+  position    StaffPosition
+  specialty   String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [idUser], onDelete: Restrict)
 }
