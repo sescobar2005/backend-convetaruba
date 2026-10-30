@@ -12,7 +12,7 @@ import {
     it,
 } from 'vitest';
 
-import { StaffPosition } from '../../../generated/prisma/client.js';
+import { StaffPosition } from '../../../../generated/prisma/client.js';
 
 import type { UpdateStaffDto } from '../dto/update-staff.dto.js';
 

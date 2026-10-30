@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 import { StaffService } from '../staff.service.js';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../../prisma/prisma.service.js';
 
 export function createStaffServiceTestContext() {
     const prismaMock = {

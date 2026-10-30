@@ -13,11 +13,11 @@ import {
 
 import type { Request } from 'express';
 
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 import { StaffService } from './staff.service.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UpdateStaffDto } from './dto/update-staff.dto.js';
 import { UpdateStaffStatusDto } from './dto/update-staff-status.dto.js';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 interface AuthenticatedRequest extends Request {
     user?: {

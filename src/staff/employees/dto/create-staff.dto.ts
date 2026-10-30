@@ -3,19 +3,22 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
+    IsUUID,
 } from 'class-validator';
 
-import { StaffPosition } from '../../../generated/prisma/client.js';
+import { StaffPosition } from '../../../../generated/prisma/client.js';
 
-export class UpdateStaffDto {
+export class CreateStaffDto {
+    @IsUUID()
+    @IsNotEmpty()
+    userId: string;
+
     @IsString()
     @IsNotEmpty()
-    @IsOptional()
-    staffNumber?: string;
+    staffNumber: string;
 
     @IsEnum(StaffPosition)
-    @IsOptional()
-    position?: StaffPosition;
+    position: StaffPosition;
 
     @IsString()
     @IsNotEmpty()

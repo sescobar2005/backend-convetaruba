@@ -11,7 +11,7 @@ import {
 import {
     Role,
     StaffPosition,
-} from '../../../generated/prisma/client.js';
+} from '../../../../generated/prisma/client.js';
 
 import type { UpdateStaffStatusDto } from '../dto/update-staff-status.dto.js';
 

@@ -5,10 +5,10 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 
-import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UpdateStaffDto } from './dto/update-staff.dto.js';
 import { UpdateStaffStatusDto } from './dto/update-staff-status.dto.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 
 @Injectable()
 export class StaffService {

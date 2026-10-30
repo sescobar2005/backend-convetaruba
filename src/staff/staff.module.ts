@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { StaffService } from './staff.service.js';
-import { StaffController } from './staff.controller.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { AppJwtModule } from '../jwt/jwt.module.js';
+import { StaffController } from './employees/staff.controller.js';
+import { StaffService } from './employees/staff.service.js';
+import { StaffBranchService } from './branches/staff-branch.service.js';
+import { StaffBranchController } from './branches/staff-branch.controller.js';
 
 @Module({
   imports: [PrismaModule, AppJwtModule],
-  controllers: [StaffController],
-  providers: [StaffService],
+  controllers: [StaffController, StaffBranchController],
+  providers: [StaffService, StaffBranchService],
 })
 export class StaffModule {}

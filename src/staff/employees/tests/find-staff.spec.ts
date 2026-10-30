@@ -11,7 +11,7 @@ import {
 import {
     Role,
     StaffPosition,
-} from '../../../generated/prisma/client.js';
+} from '../../../../generated/prisma/client.js';
 
 import { createStaffServiceTestContext } from './staff.service.test-utils.js';
 

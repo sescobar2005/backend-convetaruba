@@ -9,11 +9,11 @@ import {
 } from 'vitest';
 
 import { CreateStaffDto } from './dto/create-staff.dto.js';
-import { Role, StaffPosition } from '../../generated/prisma/enums.js';
 import { StaffController } from './staff.controller.js';
 import { StaffService } from './staff.service.js';
 import { UpdateStaffDto } from './dto/update-staff.dto.js';
 import { UpdateStaffStatusDto } from './dto/update-staff-status.dto.js';
+import { Role, StaffPosition } from '../../../generated/prisma/enums.js';
 
 describe('StaffController', () => {
     let controller: StaffController;
