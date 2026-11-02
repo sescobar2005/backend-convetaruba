@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServicesController } from './services.controller.js';
 import { ServicesService } from './services.service.js';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 describe('ServicesController', () => {
     let controller: ServicesController;

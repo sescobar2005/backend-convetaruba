@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { PrismaService } from "../../prisma/prisma.service.js";
+import { PrismaService } from "../../../prisma/prisma.service.js";
 import { ServicesService } from "../services.service.js";
 
 

@@ -1,56 +1,54 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { vi } from 'vitest';
+import {
+    describe,
+    expect,
+    it,
+    vi,
+    beforeEach,
+} from 'vitest';
+
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 
 describe('AppController', () => {
-  let appController: AppController;
+    let appController: AppController;
+    let appServiceMock: {
+        getHealth: ReturnType<typeof vi.fn>;
+    };
 
-  const appServiceMock = {
-    getHealth: vi.fn()
-  };
+    beforeEach(() => {
+        appServiceMock = {
+            getHealth: vi.fn(),
+        };
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [
-        {
-          provide: AppService,
-          useValue: appServiceMock
-        },
-      ],
-    }).compile();
-
-    appController = app.get<AppController>(AppController);
-  });
-
-  describe('getHealth', () => {
-
-    it('should return the health status provided by AppService', () => {
-      const healthResponse = {
-        status: 'ok',
-        service: 'convetaruba-api'
-      };
-
-      appServiceMock.getHealth.mockReturnValue(healthResponse);
-
-      const result = appController.getHealth();
-
-      expect(result).toEqual(healthResponse);
-      expect(appServiceMock.getHealth).toHaveBeenCalledTimes(1);
+        appController = new AppController(
+            appServiceMock as unknown as AppService,
+        );
     });
 
-    it('should propagate errors thrown by AppService', () => {
-      const error = new Error('Health check failed');
+    describe('getHealth', () => {
+        it('should return the health status provided by AppService', () => {
+            const healthResponse = {
+                status: 'ok',
+                service: 'convetaruba-api',
+            };
 
-      appServiceMock.getHealth.mockImplementation(() => {
-        throw error;
-      });
+            appServiceMock.getHealth.mockReturnValue(healthResponse);
 
-      expect(() => appController.getHealth()).toThrow(error);
+            const result = appController.getHealth();
+
+            expect(result).toEqual(healthResponse);
+            expect(appServiceMock.getHealth).toHaveBeenCalledTimes(1);
+        });
+
+        it('should propagate errors thrown by AppService', () => {
+            const error = new Error('Health check failed');
+
+            appServiceMock.getHealth.mockImplementation(() => {
+                throw error;
+            });
+
+            expect(() => appController.getHealth()).toThrow(error);
+            expect(appServiceMock.getHealth).toHaveBeenCalledTimes(1);
+        });
     });
-
-  });
 });
