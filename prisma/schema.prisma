@@ -40,6 +40,10 @@ model User {
 
   pets  Pet[]
   staff Staff?
+
+  appointmentsAsCustomer    Appointment[]        @relation("AppointmentCustomer")
+  appointmentsCreated       Appointment[]        @relation("AppointmentCreator")
+  appointmentHistoryActions AppointmentHistory[] @relation("AppointmentHistoryActor")
 }
 
 model ServiceCategory {
@@ -99,6 +103,10 @@ model Pet {
   updatedAt   DateTime   @updatedAt
 
   owner User @relation(fields: [ownerId], references: [idUser], onDelete: Restrict)
+
+  appointments Appointment[]
+
+  medicalRecords MedicalRecord[]
 }
 
 enum StaffPosition {
@@ -121,6 +129,13 @@ model Staff {
   user User @relation(fields: [userId], references: [idUser], onDelete: Restrict)
 
   staffBranches StaffBranch[]
+
+  appointmentsAsVeterinarian Appointment[] @relation("AppointmentVeterinarian")
+
+  staffSchedules    StaffSchedule[]
+  appointmentBlocks AppointmentBlock[]
+
+  medicalRecords MedicalRecord[]
 }
 
 model Branch {
@@ -139,6 +154,13 @@ model Branch {
   staffBranches StaffBranch[]
 
   branchServices BranchService[]
+
+  appointments Appointment[]
+
+  staffSchedules    StaffSchedule[]
+  appointmentBlocks AppointmentBlock[]
+
+  timeZone String @default("America/Aruba")
 }
 
 model BranchService {
@@ -153,18 +175,20 @@ model BranchService {
   service Service              @relation(fields: [serviceId], references: [idService], onDelete: Restrict)
   prices  BranchServicePrice[]
 
+  appointments Appointment[]
+
   @@unique([branchId, serviceId])
   @@index([branchId, isActive])
   @@index([serviceId, isActive])
 }
 
 model BranchServicePrice {
-  idBranchServicePrice String   @id @default(uuid()) @db.Uuid
-  branchServiceId      String   @db.Uuid
-  amount               Decimal  @db.Decimal(12, 2)
-  validFrom            DateTime @default(now())
+  idBranchServicePrice String    @id @default(uuid()) @db.Uuid
+  branchServiceId      String    @db.Uuid
+  amount               Decimal   @db.Decimal(12, 2)
+  validFrom            DateTime  @default(now())
   validUntil           DateTime?
-  createdAt            DateTime @default(now())
+  createdAt            DateTime  @default(now())
 
   branchService BranchService @relation(fields: [branchServiceId], references: [idBranchService], onDelete: Restrict)
 
@@ -187,4 +211,181 @@ model StaffBranch {
   @@unique([staffId, branchId, startDate])
   @@index([staffId, isActive])
   @@index([branchId, isActive])
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
+  EXPIRED
+}
+
+enum AppointmentHistoryAction {
+  CREATED
+  CONFIRMED
+  REJECTED
+  RESCHEDULED
+  STARTED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  VETERINARIAN_CHANGED
+  END_TIME_CHANGED
+}
+
+enum AppointmentBlockReason {
+  BREAK
+  VACATION
+  MEETING
+  PERMISSION
+  OTHER
+}
+
+model Appointment {
+  idAppointment String @id @default(uuid()) @db.Uuid
+
+  customerId      String @db.Uuid
+  createdByUserId String @db.Uuid
+  petId           String @db.Uuid
+  branchId        String @db.Uuid
+  branchServiceId String @db.Uuid
+  veterinarianId  String @db.Uuid
+
+  startsAt DateTime  @db.Timestamptz(3)
+  endsAt   DateTime? @db.Timestamptz(3)
+
+  status AppointmentStatus @default(PENDING)
+
+  priceAtBooking Decimal @db.Decimal(12, 2)
+
+  confirmationExpiresAt DateTime  @db.Timestamptz(3)
+  confirmedAt           DateTime? @db.Timestamptz(3)
+  cancelledAt           DateTime? @db.Timestamptz(3)
+  cancellationReason    String?
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer      User          @relation("AppointmentCustomer", fields: [customerId], references: [idUser], onDelete: Restrict)
+  createdBy     User          @relation("AppointmentCreator", fields: [createdByUserId], references: [idUser], onDelete: Restrict)
+  pet           Pet           @relation(fields: [petId], references: [idPet], onDelete: Restrict)
+  branch        Branch        @relation(fields: [branchId], references: [idBranch], onDelete: Restrict)
+  branchService BranchService @relation(fields: [branchServiceId], references: [idBranchService], onDelete: Restrict)
+  veterinarian  Staff         @relation("AppointmentVeterinarian", fields: [veterinarianId], references: [idStaff], onDelete: Restrict)
+
+  history AppointmentHistory[]
+
+  completedAt   DateTime?      @db.Timestamptz(3)
+  medicalRecord MedicalRecord?
+
+  @@index([customerId, startsAt])
+  @@index([petId, startsAt])
+  @@index([veterinarianId, startsAt])
+  @@index([branchId, startsAt])
+  @@index([status, confirmationExpiresAt])
+}
+
+model AppointmentHistory {
+  idAppointmentHistory String @id @default(uuid()) @db.Uuid
+
+  appointmentId     String  @db.Uuid
+  performedByUserId String? @db.Uuid
+
+  action AppointmentHistoryAction
+
+  previousData Json?
+  newData      Json?
+
+  reason String?
+
+  createdAt DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [idAppointment], onDelete: Restrict)
+  performedBy User?       @relation("AppointmentHistoryActor", fields: [performedByUserId], references: [idUser], onDelete: SetNull)
+
+  @@index([appointmentId, createdAt])
+  @@index([performedByUserId, createdAt])
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model StaffSchedule {
+  idStaffSchedule String @id @default(uuid()) @db.Uuid
+
+  staffId  String @db.Uuid
+  branchId String @db.Uuid
+
+  weekDay WeekDay
+
+  startsAt String
+  endsAt   String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  staff  Staff  @relation(fields: [staffId], references: [idStaff], onDelete: Restrict)
+  branch Branch @relation(fields: [branchId], references: [idBranch], onDelete: Restrict)
+
+  @@index([staffId, branchId, weekDay, isActive])
+  @@index([branchId, weekDay, isActive])
+}
+
+model AppointmentBlock {
+  idAppointmentBlock String @id @default(uuid()) @db.Uuid
+
+  staffId  String @db.Uuid
+  branchId String @db.Uuid
+
+  startsAt DateTime @db.Timestamptz(3)
+  endsAt   DateTime @db.Timestamptz(3)
+
+  reason      AppointmentBlockReason
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  staff  Staff  @relation(fields: [staffId], references: [idStaff], onDelete: Restrict)
+  branch Branch @relation(fields: [branchId], references: [idBranch], onDelete: Restrict)
+
+  @@index([staffId, startsAt, endsAt])
+  @@index([branchId, startsAt, endsAt])
+}
+
+model MedicalRecord {
+  idMedicalRecord String @id @default(uuid()) @db.Uuid
+
+  appointmentId  String @unique @db.Uuid
+  petId          String @db.Uuid
+  veterinarianId String @db.Uuid
+
+  observations    String? @db.Text
+  diagnosis       String? @db.Text
+  treatment       String? @db.Text
+  recommendations String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointment  Appointment @relation(fields: [appointmentId], references: [idAppointment], onDelete: Restrict)
+  pet          Pet         @relation(fields: [petId], references: [idPet], onDelete: Restrict)
+  veterinarian Staff       @relation(fields: [veterinarianId], references: [idStaff], onDelete: Restrict)
+
+  @@index([petId, createdAt])
+  @@index([veterinarianId, createdAt])
 }

@@ -9,9 +9,10 @@ import { ServiceCategoriesModule } from './service-categories/service-categories
 import { PetsModule } from './pets/pets.module.js';
 import { StaffModule } from './staff/staff.module.js';
 import { BranchesModule } from './branches/branches.module.js';
+import { AppointmentsModule } from './appointments/appointments.module.js';
 
 @Module({
-  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule, StaffModule, BranchesModule],
+  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule, StaffModule, BranchesModule, AppointmentsModule],
   controllers: [AppController],
   providers: [AppService],
 })
