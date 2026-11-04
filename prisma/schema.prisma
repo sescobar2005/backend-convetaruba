@@ -44,6 +44,8 @@ model User {
   appointmentsAsCustomer    Appointment[]        @relation("AppointmentCustomer")
   appointmentsCreated       Appointment[]        @relation("AppointmentCreator")
   appointmentHistoryActions AppointmentHistory[] @relation("AppointmentHistoryActor")
+
+  notifications Notification[]
 }
 
 model ServiceCategory {
@@ -388,4 +390,30 @@ model MedicalRecord {
 
   @@index([petId, createdAt])
   @@index([veterinarianId, createdAt])
+}
+
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_REJECTED
+  APPOINTMENT_RESCHEDULED
+  APPOINTMENT_CANCELLED
+  APPOINTMENT_REMINDER
+  APPOINTMENT_COMPLETED
+  SYSTEM
+}
+
+model Notification {
+  idNotification String           @id @default(uuid()) @db.Uuid
+  userId         String           @db.Uuid
+  type           NotificationType
+  title          String
+  message        String           @db.Text
+  isRead         Boolean          @default(false)
+  readAt         DateTime?        @db.Timestamptz(3)
+  createdAt      DateTime         @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [idUser], onDelete: Restrict)
+
+  @@index([userId, isRead, createdAt])
 }
