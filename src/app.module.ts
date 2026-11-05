@@ -12,9 +12,10 @@ import { BranchesModule } from './branches/branches.module.js';
 import { AppointmentsModule } from './appointments/appointments.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { MedicalRecordsModule } from './medical-records/medical-records.module.js';
+import { ReviewsModule } from './reviews/reviews.module.js';
 
 @Module({
-  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule, StaffModule, BranchesModule, AppointmentsModule, NotificationsModule, MedicalRecordsModule],
+  imports: [UsersModule, PrismaModule, AuthModule, ServicesModule, ServiceCategoriesModule, PetsModule, StaffModule, BranchesModule, AppointmentsModule, NotificationsModule, MedicalRecordsModule, ReviewsModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -285,6 +285,8 @@ model Appointment {
   completedAt   DateTime?      @db.Timestamptz(3)
   medicalRecord MedicalRecord?
 
+  review Review?
+
   @@index([customerId, startsAt])
   @@index([petId, startsAt])
   @@index([veterinarianId, startsAt])
@@ -416,4 +418,26 @@ model Notification {
   user User @relation(fields: [userId], references: [idUser], onDelete: Restrict)
 
   @@index([userId, isRead, createdAt])
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  HIDDEN
+}
+
+model Review {
+  idReview      String @id @default(uuid()) @db.Uuid
+  appointmentId String @unique @db.Uuid
+
+  rating  Int
+  comment String?      @db.Text
+  status  ReviewStatus @default(PENDING)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  appointment Appointment @relation(fields: [appointmentId], references: [idAppointment], onDelete: Restrict)
+
+  @@index([status, createdAt])
 }
