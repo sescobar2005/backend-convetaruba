@@ -17,12 +17,10 @@ export class AppointmentsService {
         private readonly queryService: AppointmentQueryService,
     ) {}
 
-    // Availability
     async getAvailability(...args: Parameters<AppointmentAvailabilityService['getAvailability']>) {
         return this.availabilityService.getAvailability(...args);
     }
 
-    // Appointment creation and scheduling
     async createAppointment(...args: Parameters<AppointmentSchedulingService['createAppointment']>) {
         return this.schedulingService.createAppointment(...args);
     }
@@ -35,7 +33,6 @@ export class AppointmentsService {
         return this.schedulingService.rescheduleAppointment(...args);
     }
 
-    // Appointment lifecycle
     async confirmAppointment(...args: Parameters<AppointmentLifecycleService['confirmAppointment']>) {
         return this.lifecycleService.confirmAppointment(...args);
     }
@@ -56,7 +53,6 @@ export class AppointmentsService {
         return this.lifecycleService.completeAppointment(...args);
     }
 
-    // Appointment queries
     async getAppointmentById(...args: Parameters<AppointmentQueryService['getAppointmentById']>) {
         return this.queryService.getAppointmentById(...args);
     }
@@ -69,12 +65,10 @@ export class AppointmentsService {
         return this.queryService.getBranchAppointments(...args);
     }
 
-    // Appointment history
     async getAppointmentHistory(...args: Parameters<AppointmentHistoryService['getAppointmentHistory']>) {
         return this.historyService.getAppointmentHistory(...args);
     }
 
-    // Expiration
     async expireAppointments() {
         return this.expirationService.expireAppointments();
     }
