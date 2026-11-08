@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
+
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { AppJwtModule } from '../jwt/jwt.module.js';
+
 import { AppointmentsController } from './appointments.controller.js';
 
 import { AppointmentsService } from './services/appointments.service.js';
@@ -21,7 +24,7 @@ import { AppointmentReschedulingService } from './services/scheduling/appointmen
 import { AppointmentVeterinarianService } from './services/scheduling/appointment-veterinarian.service.js';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, AppJwtModule],
     controllers: [AppointmentsController],
     providers: [
         AppointmentsService,
