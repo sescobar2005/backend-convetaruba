@@ -14,6 +14,7 @@ import {
 } from '../../../../generated/prisma/client.js';
 
 import { createStaffBranchServiceTestContext } from './staff-branch-test.utils.js';
+import { StaffBranchService } from '../staff-branch.service.js';
 
 describe('StaffBranchService - find assignments', () => {
     let service: ReturnType<
@@ -52,6 +53,95 @@ describe('StaffBranchService - find assignments', () => {
 
     beforeEach(() => {
         ({ service, prismaMock } = createStaffBranchServiceTestContext());
+    });
+
+    describe('hasActiveBranchAssignment', () => {
+        const authorizationDate = new Date('2026-11-09T12:00:00.000Z');
+
+        const assignmentId = '880e8400-e29b-41d4-a716-446655440000';
+
+        it('should return true when the user has an active assignment to the branch', async () => {
+            prismaMock.client.staffBranch.findFirst.mockResolvedValue({
+                idStaffBranch: assignmentId,
+            });
+
+            const result = await service.hasActiveBranchAssignment(
+                userId,
+                branchId,
+                authorizationDate,
+            );
+
+            expect(result).toBe(true);
+
+            expect(prismaMock.client.staffBranch.findFirst).toHaveBeenCalledTimes(1);
+        });
+
+        it('should return false when the user has no active assignment to the branch', async () => {
+            prismaMock.client.staffBranch.findFirst.mockResolvedValue(null);
+
+            const result = await service.hasActiveBranchAssignment(
+                userId,
+                branchId,
+                authorizationDate,
+            );
+
+            expect(result).toBe(false);
+        });
+
+        it('should query only active staff assignments valid at the specified date', async () => {
+            prismaMock.client.staffBranch.findFirst.mockResolvedValue({
+                idStaffBranch: assignmentId,
+            });
+
+            await service.hasActiveBranchAssignment(
+                userId,
+                branchId,
+                authorizationDate,
+            );
+
+            expect(prismaMock.client.staffBranch.findFirst).toHaveBeenCalledWith({
+                where: {
+                    branchId,
+                    isActive: true,
+                    startDate: {
+                        lte: authorizationDate,
+                    },
+                    OR: [
+                        {
+                            endDate: null,
+                        },
+                        {
+                            endDate: {
+                                gte: authorizationDate,
+                            },
+                        },
+                    ],
+                    staff: {
+                        userId,
+                        isActive: true,
+                    },
+                },
+                select: {
+                    idStaffBranch: true,
+                },
+            });
+        });
+
+        it('should propagate database errors', async () => {
+            const databaseError = new Error('Database connection failed');
+
+            prismaMock.client.staffBranch.findFirst.mockRejectedValue(
+                databaseError,
+            );
+
+            await expect(
+                service.hasActiveBranchAssignment(
+                    userId,
+                    branchId,
+                    authorizationDate,
+                ),
+            ).rejects.toThrow(databaseError);
+        });
     });
 
     describe('findStaffBranches', () => {

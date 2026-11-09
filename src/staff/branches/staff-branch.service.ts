@@ -199,6 +199,41 @@ export class StaffBranchService {
     });
   }
 
+  async hasActiveBranchAssignment(
+    userId: string,
+    branchId: string,
+    at: Date = new Date(),
+  ): Promise<boolean> {
+    const assignment = await this.prismaService.client.staffBranch.findFirst({
+      where: {
+        branchId,
+        isActive: true,
+        startDate: {
+          lte: at,
+        },
+        OR: [
+          {
+            endDate: null,
+          },
+          {
+            endDate: {
+              gte: at,
+            },
+          },
+        ],
+        staff: {
+          userId,
+          isActive: true,
+        },
+      },
+      select: {
+        idStaffBranch: true,
+      },
+    });
+
+    return assignment !== null;
+  }
+
   private isUniqueConstraintError(error: unknown): boolean {
     return (
       typeof error === 'object' &&
