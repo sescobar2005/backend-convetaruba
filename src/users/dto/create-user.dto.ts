@@ -23,12 +23,15 @@ export class CreateUserDto {
     email: string;
 
     @IsString()
-    @IsNotEmpty()
     mobileNumber: string;
 
     @IsString()
-    @MinLength(12)
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/)
+    @MinLength(6, {
+        message: 'Password must be at least 6 characters long',
+    })
+    @Matches(/^(?=.*[A-Z])(?=.*(?:\d|[^A-Za-z0-9\s])).+$/, {
+        message: 'Password must contain at least one uppercase letter and one number or symbol',
+    })
     password: string;
 
     @IsBoolean()
