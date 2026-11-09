@@ -23,8 +23,10 @@ import { AppointmentCreationService } from './services/scheduling/appointment-cr
 import { AppointmentReschedulingService } from './services/scheduling/appointment-rescheduling.service.js';
 import { AppointmentVeterinarianService } from './services/scheduling/appointment-veterinarian.service.js';
 
+import { StaffModule } from '../staff/staff.module.js';
+
 @Module({
-    imports: [PrismaModule, AppJwtModule],
+    imports: [PrismaModule, AppJwtModule, StaffModule],
     controllers: [AppointmentsController],
     providers: [
         AppointmentsService,
