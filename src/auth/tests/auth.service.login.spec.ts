@@ -41,7 +41,6 @@ describe('AuthService - login', () => {
 
         expect(result).toEqual({
             accessToken: 'fake-access-token',
-            tokenType: 'Bearer',
             expiresIn: '1h',
             user: {
                 idUser: userMock.idUser,
