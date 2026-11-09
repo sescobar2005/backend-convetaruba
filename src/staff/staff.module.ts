@@ -10,5 +10,6 @@ import { StaffBranchController } from './branches/staff-branch.controller.js';
   imports: [PrismaModule, AppJwtModule],
   controllers: [StaffController, StaffBranchController],
   providers: [StaffService, StaffBranchService],
+  exports: [StaffBranchService]
 })
 export class StaffModule {}
