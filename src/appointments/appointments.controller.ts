@@ -39,6 +39,25 @@ export class AppointmentsController {
         return this.appointmentsService.getAvailability(query);
     }
 
+    @Get('mine')
+    getMyAppointments(
+        @Req() request: AuthenticatedRequest,
+    ) {
+        const customerId = this.getAuthenticatedUserId(request);
+
+        if (request.user?.role !== 'CUSTOMER') {
+            throw new ForbiddenException(
+                'Only customers can access their appointments',
+            );
+        }
+
+        return this.appointmentsService.getCustomerAppointments(
+            customerId,
+            customerId,
+            false,
+        );
+    }
+
     @Post()
     createAppointment(
         @Body() dto: CreateAppointmentDto,
