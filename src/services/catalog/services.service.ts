@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { CreateServiceDto } from './dto/create-service.dto.js';
 import { UpdateServiceDto } from './dto/update-service.dto.js';
+import { UpdateServiceStatusDto } from './dto/update-service-status.dto.js';
 
 @Injectable()
 export class ServicesService {
@@ -141,6 +142,59 @@ export class ServicesService {
                 slug: true,
                 isActive: true
             }
+        });
+    }
+
+    async updateServiceStatus(
+        idService: string,
+        updateServiceStatusDto: UpdateServiceStatusDto,
+    ) {
+        if (Object.keys(updateServiceStatusDto).length === 0) {
+            throw new BadRequestException(
+                'At least one status field must be provided',
+            );
+        }
+
+        const existingService = await this.prismaService.client.service.findUnique({
+            where: { idService },
+            select: {
+                idService: true,
+                isActive: true,
+                isPublished: true,
+            },
+        });
+
+        if (!existingService) {
+            throw new NotFoundException('Service not found');
+        }
+
+        const nextIsActive =
+            updateServiceStatusDto.isActive ?? existingService.isActive;
+
+        if (updateServiceStatusDto.isPublished === true && !nextIsActive) {
+            throw new BadRequestException(
+                'An inactive service cannot be published',
+            );
+        }
+
+        const data = {
+            ...(updateServiceStatusDto.isActive !== undefined
+                ? { isActive: updateServiceStatusDto.isActive }
+                : {}),
+            ...(updateServiceStatusDto.isPublished !== undefined
+                ? { isPublished: updateServiceStatusDto.isPublished }
+                : {}),
+            ...(updateServiceStatusDto.isActive === false
+                ? { isPublished: false }
+                : {}),
+        };
+
+        return this.prismaService.client.service.update({
+            where: { idService },
+            data,
+            include: {
+                category: true,
+            },
         });
     }
 

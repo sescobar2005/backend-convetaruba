@@ -5,6 +5,7 @@ import { RolesGuard } from '../../auth/guards/roles/roles.guard.js';
 import { Roles } from '../../auth/decorators/roles.decorator.js';
 import { CreateServiceDto } from './dto/create-service.dto.js';
 import { UpdateServiceDto } from './dto/update-service.dto.js';
+import { UpdateServiceStatusDto } from './dto/update-service-status.dto.js';
 
 @Controller('services')
 export class ServicesController {
@@ -37,6 +38,19 @@ export class ServicesController {
     deactivateService(
         @Param('id', ParseUUIDPipe) idService: string) {
         return this.servicesService.deactivateService(idService);
+    }
+
+    @Patch(':id/status')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('STAFF', 'ADMIN')
+    updateServiceStatus(
+        @Param('id', ParseUUIDPipe) idService: string,
+        @Body() updateServiceStatusDto: UpdateServiceStatusDto,
+    ) {
+        return this.servicesService.updateServiceStatus(
+            idService,
+            updateServiceStatusDto,
+        );
     }
 
 }
