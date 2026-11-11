@@ -123,10 +123,10 @@ export class ServicesService {
     async deactivateService(idService: string) {
         const existingService = await this.prismaService.client.service.findUnique({
             where: { idService },
-            select: { 
+            select: {
                 idService: true,
-                isActive: true
-            }
+                isActive: true,
+            },
         });
 
         if (!existingService || !existingService.isActive) {
@@ -135,13 +135,17 @@ export class ServicesService {
 
         return this.prismaService.client.service.update({
             where: { idService },
-            data: { isActive: false },
+            data: {
+                isActive: false,
+                isPublished: false,
+            },
             select: {
                 idService: true,
                 name: true,
                 slug: true,
-                isActive: true
-            }
+                isActive: true,
+                isPublished: true,
+            },
         });
     }
 

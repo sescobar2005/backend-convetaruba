@@ -22,6 +22,7 @@ describe('ServicesService - deactivateService', () => {
             name: 'Consulta general',
             slug: 'consulta-general',
             isActive: false,
+            isPublished: false
         };
 
         prismaMock.client.service.findUnique.mockResolvedValue(existingService);
@@ -38,12 +39,16 @@ describe('ServicesService - deactivateService', () => {
 
         expect(prismaMock.client.service.update).toHaveBeenCalledWith({
             where: { idService },
-            data: { isActive: false },
+            data: {
+                isActive: false,
+                isPublished: false,
+            },
             select: {
                 idService: true,
                 name: true,
                 slug: true,
                 isActive: true,
+                isPublished: true,
             },
         });
     });

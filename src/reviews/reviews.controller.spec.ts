@@ -54,7 +54,7 @@ describe('ReviewsController', () => {
     };
 
     beforeEach(async () => {
-        vi.resetAllMocks();
+        vi.clearAllMocks();
 
         const module: TestingModule = await Test.createTestingModule({
             controllers: [ReviewsController],

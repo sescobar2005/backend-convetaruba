@@ -13,6 +13,7 @@ describe('ServicesController', () => {
         createService: ReturnType<typeof vi.fn>;
         updateService: ReturnType<typeof vi.fn>;
         deactivateService: ReturnType<typeof vi.fn>;
+        updateServiceStatus: ReturnType<typeof vi.fn>;
     };
 
     beforeEach(async () => {
@@ -21,6 +22,7 @@ describe('ServicesController', () => {
             createService: vi.fn(),
             updateService: vi.fn(),
             deactivateService: vi.fn(),
+            updateServiceStatus: vi.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -146,6 +148,33 @@ describe('ServicesController', () => {
         );
 
         expect(servicesService.deactivateService).toHaveBeenCalledOnce();
+    });
+
+    it('should update a service status', async () => {
+        const idService = '660e8400-e29b-41d4-a716-446655440000';
+
+        const updateServiceStatusDto = {
+            isPublished: true,
+        };
+
+        const updatedService = {
+            idService,
+            isActive: true,
+            isPublished: true,
+        };
+
+        servicesService.updateServiceStatus.mockResolvedValue(updatedService);
+
+        await expect(
+            controller.updateServiceStatus(idService, updateServiceStatusDto),
+        ).resolves.toEqual(updatedService);
+
+        expect(servicesService.updateServiceStatus).toHaveBeenCalledWith(
+            idService,
+            updateServiceStatusDto,
+        );
+
+        expect(servicesService.updateServiceStatus).toHaveBeenCalledOnce();
     });
 
 });

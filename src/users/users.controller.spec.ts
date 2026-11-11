@@ -44,7 +44,7 @@ describe('UsersController', () => {
     };
 
     beforeEach(async () => {
-        vi.resetAllMocks();
+        vi.clearAllMocks();
 
         const module: TestingModule = await Test.createTestingModule({
           controllers: [UsersController],
