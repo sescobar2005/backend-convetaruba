@@ -5,6 +5,7 @@ import {
 
 import { AppointmentsController } from './appointments.controller.js';
 import { AppointmentsService } from './services/appointments.service.js';
+import { StaffBranchService } from '../staff/branches/staff-branch.service.js';
 
 describe('AppointmentsController', () => {
     let controller: AppointmentsController;
@@ -13,6 +14,10 @@ describe('AppointmentsController', () => {
         getAvailability: vi.fn(),
         getCustomerAppointments: vi.fn(),
         createAppointment: vi.fn(),
+    };
+
+    const staffBranchServiceMock = {
+        hasActiveBranchAssignment: vi.fn(),
     };
 
     const customerRequest = {
@@ -26,8 +31,12 @@ describe('AppointmentsController', () => {
     beforeEach(() => {
         vi.clearAllMocks();
 
+        staffBranchServiceMock.hasActiveBranchAssignment
+            .mockResolvedValue(true);
+
         controller = new AppointmentsController(
             appointmentsServiceMock as unknown as AppointmentsService,
+            staffBranchServiceMock as unknown as StaffBranchService,
         );
     });
 
