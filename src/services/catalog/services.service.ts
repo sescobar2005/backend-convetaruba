@@ -120,35 +120,6 @@ export class ServicesService {
         }
     }
 
-    async deactivateService(idService: string) {
-        const existingService = await this.prismaService.client.service.findUnique({
-            where: { idService },
-            select: {
-                idService: true,
-                isActive: true,
-            },
-        });
-
-        if (!existingService || !existingService.isActive) {
-            throw new NotFoundException('Active service not found');
-        }
-
-        return this.prismaService.client.service.update({
-            where: { idService },
-            data: {
-                isActive: false,
-                isPublished: false,
-            },
-            select: {
-                idService: true,
-                name: true,
-                slug: true,
-                isActive: true,
-                isPublished: true,
-            },
-        });
-    }
-
     async updateServiceStatus(
         idService: string,
         updateServiceStatusDto: UpdateServiceStatusDto,

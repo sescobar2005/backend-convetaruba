@@ -1,8 +1,7 @@
-
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createServiceCategoriesServiceTestContext } from './service-categories.service.test-utils.js';
 
-describe('ServiceCategoriesService - deactivateCategory', () => {
+describe('ServiceCategoriesService - updateCategoryStatus', () => {
     let service: ReturnType<typeof createServiceCategoriesServiceTestContext>['service'];
     let prismaMock: ReturnType<typeof createServiceCategoriesServiceTestContext>['prismaMock'];
 
@@ -12,11 +11,7 @@ describe('ServiceCategoriesService - deactivateCategory', () => {
 
     it('should deactivate a category without active services', async () => {
         const idCategory = '550e8400-e29b-41d4-a716-446655440000';
-
-        const existingCategory = {
-            idCategory,
-            isActive: true,
-        };
+        const updateServiceCategoryStatusDto = { isActive: false };
 
         const deactivatedCategory = {
             idCategory,
@@ -25,32 +20,65 @@ describe('ServiceCategoriesService - deactivateCategory', () => {
             isActive: false,
         };
 
-        prismaMock.client.serviceCategory.findUnique.mockResolvedValue(existingCategory);
+        prismaMock.client.serviceCategory.findUnique.mockResolvedValue({
+            idCategory,
+            isActive: true,
+        });
         prismaMock.client.service.count.mockResolvedValue(0);
         prismaMock.client.serviceCategory.update.mockResolvedValue(deactivatedCategory);
 
-        const result = await service.deactivateCategory(idCategory);
+        const result = await service.updateCategoryStatus(
+            idCategory,
+            updateServiceCategoryStatusDto,
+        );
 
         expect(result).toEqual(deactivatedCategory);
 
-        expect(prismaMock.client.serviceCategory.findUnique).toHaveBeenCalledWith({
-            where: { idCategory },
-            select: {
-                idCategory: true,
-                isActive: true,
-            },
-        });
-
         expect(prismaMock.client.service.count).toHaveBeenCalledWith({
-            where: {
-                categoryId: idCategory,
-                isActive: true,
-            },
+            where: { categoryId: idCategory, isActive: true },
         });
 
         expect(prismaMock.client.serviceCategory.update).toHaveBeenCalledWith({
             where: { idCategory },
             data: { isActive: false },
+            select: {
+                idCategory: true,
+                name: true,
+                slug: true,
+                isActive: true,
+            },
+        });
+    });
+
+    it('should reactivate an inactive category without checking active services', async () => {
+        const idCategory = '550e8400-e29b-41d4-a716-446655440000';
+        const updateServiceCategoryStatusDto = { isActive: true };
+
+        const reactivatedCategory = {
+            idCategory,
+            name: 'Consultas',
+            slug: 'consultas',
+            isActive: true,
+        };
+
+        prismaMock.client.serviceCategory.findUnique.mockResolvedValue({
+            idCategory,
+            isActive: false,
+        });
+        prismaMock.client.serviceCategory.update.mockResolvedValue(reactivatedCategory);
+
+        const result = await service.updateCategoryStatus(
+            idCategory,
+            updateServiceCategoryStatusDto,
+        );
+
+        expect(result).toEqual(reactivatedCategory);
+
+        expect(prismaMock.client.service.count).not.toHaveBeenCalled();
+
+        expect(prismaMock.client.serviceCategory.update).toHaveBeenCalledWith({
+            where: { idCategory },
+            data: { isActive: true },
             select: {
                 idCategory: true,
                 name: true,
@@ -66,15 +94,14 @@ describe('ServiceCategoriesService - deactivateCategory', () => {
         prismaMock.client.serviceCategory.findUnique.mockResolvedValue(null);
 
         await expect(
-            service.deactivateCategory(idCategory),
-        ).rejects.toThrow('Active category not found');
+            service.updateCategoryStatus(idCategory, { isActive: false }),
+        ).rejects.toThrow('Category not found');
 
         expect(prismaMock.client.service.count).not.toHaveBeenCalled();
-
         expect(prismaMock.client.serviceCategory.update).not.toHaveBeenCalled();
     });
- 
-    it('should throw NotFoundException when category is already inactive', async () => {
+
+    it('should throw BadRequestException when category is already inactive', async () => {
         const idCategory = '550e8400-e29b-41d4-a716-446655440000';
 
         prismaMock.client.serviceCategory.findUnique.mockResolvedValue({
@@ -83,11 +110,26 @@ describe('ServiceCategoriesService - deactivateCategory', () => {
         });
 
         await expect(
-            service.deactivateCategory(idCategory),
-        ).rejects.toThrow('Active category not found');
+            service.updateCategoryStatus(idCategory, { isActive: false }),
+        ).rejects.toThrow('Category is already inactive');
 
         expect(prismaMock.client.service.count).not.toHaveBeenCalled();
+        expect(prismaMock.client.serviceCategory.update).not.toHaveBeenCalled();
+    });
 
+    it('should throw BadRequestException when category is already active', async () => {
+        const idCategory = '550e8400-e29b-41d4-a716-446655440000';
+
+        prismaMock.client.serviceCategory.findUnique.mockResolvedValue({
+            idCategory,
+            isActive: true,
+        });
+
+        await expect(
+            service.updateCategoryStatus(idCategory, { isActive: true }),
+        ).rejects.toThrow('Category is already active');
+
+        expect(prismaMock.client.service.count).not.toHaveBeenCalled();
         expect(prismaMock.client.serviceCategory.update).not.toHaveBeenCalled();
     });
 
@@ -98,21 +140,16 @@ describe('ServiceCategoriesService - deactivateCategory', () => {
             idCategory,
             isActive: true,
         });
-
         prismaMock.client.service.count.mockResolvedValue(2);
 
         await expect(
-            service.deactivateCategory(idCategory),
+            service.updateCategoryStatus(idCategory, { isActive: false }),
         ).rejects.toThrow('Cannot deactivate a category with active services');
 
         expect(prismaMock.client.service.count).toHaveBeenCalledWith({
-            where: {
-                categoryId: idCategory,
-                isActive: true,
-            },
+            where: { categoryId: idCategory, isActive: true },
         });
 
         expect(prismaMock.client.serviceCategory.update).not.toHaveBeenCalled();
     });
-
 });

@@ -13,7 +13,7 @@ describe('ServiceCategoriesController', () => {
         findActiveCategories: ReturnType<typeof vi.fn>;
         createCategory: ReturnType<typeof vi.fn>;
         updateCategory: ReturnType<typeof vi.fn>;
-        deactivateCategory: ReturnType<typeof vi.fn>;
+        updateCategoryStatus: ReturnType<typeof vi.fn>;
     };
 
     beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('ServiceCategoriesController', () => {
             findActiveCategories: vi.fn(),
             createCategory: vi.fn(),
             updateCategory: vi.fn(),
-            deactivateCategory: vi.fn(),
+            updateCategoryStatus: vi.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -124,31 +124,72 @@ describe('ServiceCategoriesController', () => {
             serviceCategoriesService.updateCategory,
         ).toHaveBeenCalledOnce();
     });
-    
+
     it('should deactivate a category', async () => {
+    const idCategory = '550e8400-e29b-41d4-a716-446655440000';
+
+    const updateServiceCategoryStatusDto = {
+        isActive: false,
+    };
+
+    const deactivatedCategory = {
+        idCategory,
+        name: 'Consultas',
+        slug: 'consultas',
+        isActive: false,
+    };
+
+    serviceCategoriesService.updateCategoryStatus.mockResolvedValue(
+        deactivatedCategory,
+    );
+
+    await expect(
+        controller.updateCategoryStatus(
+            idCategory,
+            updateServiceCategoryStatusDto,
+        ),
+    ).resolves.toEqual(deactivatedCategory);
+
+    expect(
+        serviceCategoriesService.updateCategoryStatus,
+    ).toHaveBeenCalledWith(idCategory, updateServiceCategoryStatusDto);
+
+    expect(
+        serviceCategoriesService.updateCategoryStatus,
+    ).toHaveBeenCalledOnce();
+});
+
+    it('should reactivate a category', async () => {
         const idCategory = '550e8400-e29b-41d4-a716-446655440000';
 
-        const deactivatedCategory = {
+        const updateServiceCategoryStatusDto = {
+            isActive: true,
+        };
+
+        const reactivatedCategory = {
             idCategory,
             name: 'Consultas',
             slug: 'consultas',
-            isActive: false,
+            isActive: true,
         };
 
-        serviceCategoriesService.deactivateCategory.mockResolvedValue(
-            deactivatedCategory,
+        serviceCategoriesService.updateCategoryStatus.mockResolvedValue(
+            reactivatedCategory,
         );
 
         await expect(
-            controller.deactivateCategory(idCategory),
-        ).resolves.toEqual(deactivatedCategory);
+            controller.updateCategoryStatus(
+                idCategory,
+                updateServiceCategoryStatusDto,
+            ),
+        ).resolves.toEqual(reactivatedCategory);
 
         expect(
-            serviceCategoriesService.deactivateCategory,
-        ).toHaveBeenCalledWith(idCategory);
+            serviceCategoriesService.updateCategoryStatus,
+        ).toHaveBeenCalledWith(idCategory, updateServiceCategoryStatusDto);
 
         expect(
-            serviceCategoriesService.deactivateCategory,
+            serviceCategoriesService.updateCategoryStatus,
         ).toHaveBeenCalledOnce();
     });
 

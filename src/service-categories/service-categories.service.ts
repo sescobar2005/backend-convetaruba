@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateServiceCategoryDto } from "./dto/create-service-category.dto.js";
 import { UpdateServiceCategoryDto } from "./dto/update-service-category.dto.js";
-
+import { UpdateServiceCategoryStatusDto } from './dto/update-service-category-status.dto.js';
 
 @Injectable()
 export class ServiceCategoriesService {
@@ -65,39 +65,54 @@ export class ServiceCategoriesService {
         }
     }
 
-    async deactivateCategory(idCategory: string) {
+    async updateCategoryStatus(
+        idCategory: string,
+        updateServiceCategoryStatusDto: UpdateServiceCategoryStatusDto,
+    ) {
         const existingCategory = await this.prismaService.client.serviceCategory.findUnique({
             where: { idCategory },
             select: {
                 idCategory: true,
-                isActive: true
-            }
+                isActive: true,
+            },
         });
 
-        if (!existingCategory || !existingCategory.isActive) {
-            throw new NotFoundException('Active category not found');
+        if (!existingCategory) {
+            throw new NotFoundException('Category not found');
         }
 
-        const activeServices = await this.prismaService.client.service.count({
-            where: {
-                categoryId: idCategory,
-                isActive: true
-            }
-        });
+        const { isActive } = updateServiceCategoryStatusDto;
 
-        if (activeServices > 0) {
-            throw new BadRequestException('Cannot deactivate a category with active services');
+        if (existingCategory.isActive === isActive) {
+            throw new BadRequestException(
+                `Category is already ${isActive ? 'active' : 'inactive'}`,
+            );
+        }
+
+        if (!isActive) {
+            const activeServices = await this.prismaService.client.service.count({
+                where: {
+                    categoryId: idCategory,
+                    isActive: true,
+                },
+            });
+
+            if (activeServices > 0) {
+                throw new BadRequestException(
+                    'Cannot deactivate a category with active services',
+                );
+            }
         }
 
         return this.prismaService.client.serviceCategory.update({
             where: { idCategory },
-            data: { isActive: false },
+            data: { isActive },
             select: {
                 idCategory: true,
                 name: true,
                 slug: true,
-                isActive: true
-            }
+                isActive: true,
+            },
         });
     }
     

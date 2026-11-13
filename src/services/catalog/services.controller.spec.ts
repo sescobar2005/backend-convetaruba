@@ -12,7 +12,6 @@ describe('ServicesController', () => {
         findPublishedServices: ReturnType<typeof vi.fn>;
         createService: ReturnType<typeof vi.fn>;
         updateService: ReturnType<typeof vi.fn>;
-        deactivateService: ReturnType<typeof vi.fn>;
         updateServiceStatus: ReturnType<typeof vi.fn>;
     };
 
@@ -21,7 +20,6 @@ describe('ServicesController', () => {
             findPublishedServices: vi.fn(),
             createService: vi.fn(),
             updateService: vi.fn(),
-            deactivateService: vi.fn(),
             updateServiceStatus: vi.fn(),
         };
 
@@ -127,40 +125,17 @@ describe('ServicesController', () => {
         expect(servicesService.updateService).toHaveBeenCalledOnce();
     });
 
-    it('should deactivate a service', async () => {
-        const idService = '660e8400-e29b-41d4-a716-446655440000';
-
-        const deactivatedService = {
-            idService,
-            name: 'Consulta general',
-            slug: 'consulta-general',
-            isActive: false,
-        };
-
-        servicesService.deactivateService.mockResolvedValue(deactivatedService);
-
-        await expect(
-            controller.deactivateService(idService),
-        ).resolves.toEqual(deactivatedService);
-
-        expect(servicesService.deactivateService).toHaveBeenCalledWith(
-            idService,
-        );
-
-        expect(servicesService.deactivateService).toHaveBeenCalledOnce();
-    });
-
     it('should update a service status', async () => {
         const idService = '660e8400-e29b-41d4-a716-446655440000';
 
         const updateServiceStatusDto = {
-            isPublished: true,
+            isActive: false,
         };
 
         const updatedService = {
             idService,
-            isActive: true,
-            isPublished: true,
+            isActive: false,
+            isPublished: false,
         };
 
         servicesService.updateServiceStatus.mockResolvedValue(updatedService);

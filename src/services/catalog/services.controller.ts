@@ -32,13 +32,7 @@ export class ServicesController {
         return this.servicesService.updateService(idService, updateServiceDto);
     }
 
-    @Delete(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('STAFF', 'ADMIN')
-    deactivateService(
-        @Param('id', ParseUUIDPipe) idService: string) {
-        return this.servicesService.deactivateService(idService);
-    }
+    
 
     @Patch(':id/status')
     @UseGuards(JwtAuthGuard, RolesGuard)
