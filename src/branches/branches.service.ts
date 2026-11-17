@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateBranchDto } from './dto/create-branch.dto.js';
 import { UpdateBranchDto } from './dto/update-branch.dto.js';
+import { isUniqueConstraintError } from '../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class BranchesService {
@@ -42,7 +43,7 @@ export class BranchesService {
                 },
             });
         } catch (error: unknown) {
-            if (this.isUniqueConstraintError(error)) {
+            if (isUniqueConstraintError(error)) {
                 throw new ConflictException(
                     'A branch with this slug already exists',
                 );
@@ -149,7 +150,7 @@ export class BranchesService {
                 },
             });
         } catch (error: unknown) {
-            if (this.isUniqueConstraintError(error)) {
+            if (isUniqueConstraintError(error)) {
                 throw new ConflictException(
                     'A branch with this slug already exists',
                 );
@@ -206,14 +207,5 @@ export class BranchesService {
             .trim()
             .toLowerCase()
             .replace(/\s+/g, '-');
-    }
-
-    private isUniqueConstraintError(error: unknown): boolean {
-        return (
-            typeof error === 'object' &&
-            error !== null &&
-            'code' in error &&
-            error.code === 'P2002'
-        );
     }
 }

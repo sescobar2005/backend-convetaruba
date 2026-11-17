@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AssignStaffBranchDto } from './dto/assign-staff-branch.dto.js';
 import { EndStaffBranchDto } from './dto/end-staff-branch.dto.js';
+import { isUniqueConstraintError } from '../../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class StaffBranchService {
@@ -82,7 +83,7 @@ export class StaffBranchService {
         },
       });
     } catch (error: unknown) {
-      if (this.isUniqueConstraintError(error)) {
+      if (isUniqueConstraintError(error)) {
         throw new ConflictException(
           'This staff branch assignment already exists',
         );
@@ -232,14 +233,5 @@ export class StaffBranchService {
     });
 
     return assignment !== null;
-  }
-
-  private isUniqueConstraintError(error: unknown): boolean {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      error.code === 'P2002'
-    );
   }
 }

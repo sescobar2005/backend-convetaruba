@@ -9,21 +9,13 @@ import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UpdateStaffDto } from './dto/update-staff.dto.js';
 import { UpdateStaffStatusDto } from './dto/update-staff-status.dto.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { isUniqueConstraintError } from '../../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class StaffService {
     constructor(
         private readonly prismaService: PrismaService,
     ) {}
-
-    private isUniqueConstraintError(error: unknown): boolean {
-        return (
-            typeof error === 'object' &&
-            error !== null &&
-            'code' in error &&
-            error.code === 'P2002'
-        );
-    }
 
     async createStaff(createStaffDto: CreateStaffDto) {
         const user = await this.prismaService.client.user.findUnique({
@@ -77,7 +69,7 @@ export class StaffService {
                 },
             });
         } catch (error) {
-            if (this.isUniqueConstraintError(error)) {
+            if (isUniqueConstraintError(error)) {
                 throw new ConflictException(
                     'Staff number or user is already registered',
                 );
@@ -188,7 +180,7 @@ export class StaffService {
                 },
             });
         } catch (error) {
-            if (this.isUniqueConstraintError(error)) {
+            if (isUniqueConstraintError(error)) {
                 throw new ConflictException(
                     'Staff number is already registered',
                 );
