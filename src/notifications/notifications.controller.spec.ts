@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ForbiddenException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
 
 import { NotificationsController } from './notifications.controller.js';
@@ -104,7 +104,7 @@ describe('NotificationsController', () => {
                     {} as never,
                 ),
             ).toThrow(
-                new ForbiddenException('User identity is missing'),
+                new UnauthorizedException('User identity is missing'),
             );
 
             expect(notificationsServiceMock.findAll).not.toHaveBeenCalled();
@@ -156,7 +156,7 @@ describe('NotificationsController', () => {
                     {} as never,
                 ),
             ).toThrow(
-                new ForbiddenException('User identity is missing'),
+                new UnauthorizedException('User identity is missing'),
             );
 
             expect(notificationsServiceMock.markAsRead).not.toHaveBeenCalled();
@@ -196,7 +196,7 @@ describe('NotificationsController', () => {
             expect(() =>
                 controller.markAllAsRead({} as never),
             ).toThrow(
-                new ForbiddenException('User identity is missing'),
+                new UnauthorizedException('User identity is missing'),
             );
 
             expect(

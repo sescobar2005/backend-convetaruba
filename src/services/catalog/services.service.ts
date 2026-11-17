@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { CreateServiceDto } from './dto/create-service.dto.js';
 import { UpdateServiceDto } from './dto/update-service.dto.js';
 import { UpdateServiceStatusDto } from './dto/update-service-status.dto.js';
+import { isUniqueConstraintError } from '../../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class ServicesService {
@@ -55,11 +56,7 @@ export class ServicesService {
             });
 
         } catch (error) {
-            if (
-                error instanceof Error &&
-                'code' in error &&
-                error.code === 'P2002'
-            ) {
+            if (isUniqueConstraintError(error)) {
                 throw new BadRequestException('A service with this slug already exists');
             }
 
@@ -107,17 +104,13 @@ export class ServicesService {
                 include: { category: true }
             });
         } catch (error) {
-            if (
-                error instanceof Error &&
-                'code' in error &&
-                error.code === 'P2002'
-            ) {
+            if (isUniqueConstraintError(error)) {
                 throw new BadRequestException('A service with this slug already exists');
             }
 
             throw error;
-
         }
+
     }
 
     async updateServiceStatus(

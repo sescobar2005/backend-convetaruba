@@ -3,6 +3,7 @@ import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateServiceCategoryDto } from "./dto/create-service-category.dto.js";
 import { UpdateServiceCategoryDto } from "./dto/update-service-category.dto.js";
 import { UpdateServiceCategoryStatusDto } from './dto/update-service-category-status.dto.js';
+import { isUniqueConstraintError } from '../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class ServiceCategoriesService {
@@ -21,11 +22,7 @@ export class ServiceCategoriesService {
                 data: createServiceCategoryDto
             });
         } catch (error) {
-            if (
-                error instanceof Error &&
-                'code' in error &&
-                error.code === 'P2002'
-            ) {
+            if (isUniqueConstraintError(error)) {
                 throw new BadRequestException('A category with this slug already exists');
             }
 
@@ -53,11 +50,7 @@ export class ServiceCategoriesService {
                 data: updateServiceCategoryDto
             });
         } catch (error) {
-            if (
-                error instanceof Error &&
-                'code' in error &&
-                error.code === 'P2002'
-            ) {
+            if (isUniqueConstraintError(error)) {
                 throw new BadRequestException('A category with this slug already exists');
             }
 

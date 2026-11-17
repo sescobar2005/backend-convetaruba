@@ -7,7 +7,7 @@ import {
     UseGuards,
     Req,
     ParseUUIDPipe,
-    ForbiddenException,
+    UnauthorizedException,
 } from '@nestjs/common';
 
 import { NotificationsService } from './notifications.service.js';
@@ -65,7 +65,7 @@ export class NotificationsController {
         const userId = request.user?.sub;
 
         if (!userId) {
-            throw new ForbiddenException('User identity is missing');
+            throw new UnauthorizedException('User identity is missing');
         }
 
         return userId;

@@ -5,6 +5,7 @@ import * as argon2 from 'argon2';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { UpdateEmailDto } from './dto/update-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
+import { isUniqueConstraintError } from '../common/utils/prisma-error.util.js';
 
 @Injectable()
 export class UsersService {
@@ -164,12 +165,7 @@ export class UsersService {
             }
         });
         } catch (error: unknown) {
-            if (
-                typeof error === 'object' &&
-                error !== null &&
-                'code' in error &&
-                error.code === 'P2002'
-            ) {
+            if (isUniqueConstraintError(error)) {
                 throw new ConflictException('Email is already in use');
             }
 
