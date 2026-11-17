@@ -11,21 +11,12 @@ import {
     UseGuards,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
-
 import { StaffService } from './staff.service.js';
+import type { AuthenticatedRequest } from '../../common/types/authenticated-request.js';
 import { CreateStaffDto } from './dto/create-staff.dto.js';
 import { UpdateStaffDto } from './dto/update-staff.dto.js';
 import { UpdateStaffStatusDto } from './dto/update-staff-status.dto.js';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth/jwt-auth.guard.js';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-        tokenVersion: number;
-    };
-}
 
 @Controller('staff')
 @UseGuards(JwtAuthGuard)

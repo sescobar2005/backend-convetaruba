@@ -1,21 +1,11 @@
 import { Body, Controller, Post, Get, Param, Patch, ParseUUIDPipe, UseGuards, Req, ForbiddenException } from '@nestjs/common';
-import type { Request } from 'express';
 import { UsersService } from './users.service.js';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateProfileDto } from './dto/update-profile.dto.js';
 import { UpdateEmailDto } from './dto/update-email.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
-
-type UserRole = 'CUSTOMER' | 'STAFF' | 'ADMIN';
-
-interface AuthenticatedRequest extends Request {
-    user? : {
-        sub: string;
-        role: UserRole;
-        tokenVersion: number;
-    };
-}
 
 @Controller('users')
 export class UsersController {

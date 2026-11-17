@@ -14,9 +14,8 @@ import {
     UseGuards,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
-
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 import { StaffBranchService } from '../staff/branches/staff-branch.service.js';
 
 import { CreateAppointmentDto } from './dto/create-appointment.dto.js';
@@ -30,14 +29,6 @@ import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto.js';
 import { ChangeVeterinarianDto } from './dto/change-veterinarian.dto.js';
 
 import { AppointmentsService } from './services/appointments.service.js';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-        tokenVersion: number;
-    };
-}
 
 @Controller('appointments')
 @UseGuards(JwtAuthGuard)

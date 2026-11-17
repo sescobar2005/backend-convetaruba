@@ -7,19 +7,10 @@ import {
     UnauthorizedException,
     UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
-
 import { AuthService } from './auth.service.js';
+import type { AuthenticatedRequest } from '../../common/types/authenticated-request.js';
 import { LoginDto } from './dto/LoginDto.js';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard.js';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-        tokenVersion: number;
-    };
-}
 
 @Controller('auth')
 export class AuthController {

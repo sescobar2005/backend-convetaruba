@@ -1,15 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, ParseUUIDPipe, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import type { Request } from 'express';
 import { PrismaService } from '../../../prisma/prisma.service.js';
-
-interface AuthenticatedRequest extends Request{
-  user?: {
-    sub: string;
-    role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-    tokenVersion: number;
-  };
-}
+import type { AuthenticatedRequest } from '../../../common/types/authenticated-request.js';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
