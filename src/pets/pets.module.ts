@@ -3,10 +3,11 @@ import { PetsService } from './pets.service.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { PetsController } from './pets.controller.js';
 import { AppJwtModule } from '../jwt/jwt.module.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 
   @Module({
     imports: [PrismaModule, AppJwtModule],
-    providers: [PetsService],
+    providers: [PetsService, JwtAuthGuard],
     controllers: [PetsController],
     exports: [PetsService]
   })

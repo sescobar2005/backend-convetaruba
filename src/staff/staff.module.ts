@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { AppJwtModule } from '../jwt/jwt.module.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 import { StaffController } from './employees/staff.controller.js';
 import { StaffService } from './employees/staff.service.js';
@@ -23,6 +24,7 @@ import { StaffScheduleController } from './schedules/staff-schedule.controller.j
         StaffService,
         StaffBranchService,
         StaffScheduleService,
+        JwtAuthGuard,
     ],
     exports: [
         StaffBranchService,

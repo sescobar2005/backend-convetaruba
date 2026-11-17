@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { AppJwtModule } from '../jwt/jwt.module.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 import { AppointmentsController } from './appointments.controller.js';
 
@@ -30,6 +31,7 @@ import { StaffModule } from '../staff/staff.module.js';
     controllers: [AppointmentsController],
     providers: [
         AppointmentsService,
+        JwtAuthGuard,
         AppointmentAvailabilityService,
         AppointmentHistoryService,
         AppointmentExpirationService,
