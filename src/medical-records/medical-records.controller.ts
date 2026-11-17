@@ -10,22 +10,12 @@ import {
     ParseUUIDPipe,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
-
-import { Role } from '../../generated/prisma/enums.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 import { MedicalRecordsService } from './medical-records.service.js';
 import { MedicalRecordQueryDto } from './dto/medical-record-query.dto.js';
 import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto.js';
-
-interface AuthenticatedRequest extends Request {
-    user: {
-        sub: string;
-        role: Role;
-        tokenVersion: number;
-    };
-}
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 
 @Controller('medical-records')
 @UseGuards(JwtAuthGuard)

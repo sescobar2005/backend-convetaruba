@@ -10,21 +10,13 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth/jwt-auth.guard.js';
 import { CreateStaffScheduleDto } from './dto/create-staff-schedule.dto.js';
 import { UpdateStaffScheduleDto } from './dto/update-staff-schedule.dto.js';
 import { UpdateStaffScheduleStatusDto } from './dto/update-staff-schedule-status.dto.js';
 import { StaffScheduleService } from './staff-schedule.service.js';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
-        tokenVersion: number;
-    };
-}
+import type { AuthenticatedRequest } from '../../common/types/authenticated-request.js';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -34,7 +26,7 @@ export class StaffScheduleController {
     ) {}
 
     private authorizeAdmin(request: AuthenticatedRequest): void {
-        if (request.user?.role !== 'ADMIN') {
+        if (request.user.role !== 'ADMIN') {
             throw new ForbiddenException(
                 'You do not have permission to perform this action',
             );

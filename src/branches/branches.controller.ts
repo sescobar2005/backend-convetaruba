@@ -12,8 +12,6 @@ import {
     UseGuards,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
-
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 
 import { BranchesService } from './branches.service.js';
@@ -21,15 +19,7 @@ import { BranchesService } from './branches.service.js';
 import { CreateBranchDto } from './dto/create-branch.dto.js';
 import { UpdateBranchDto } from './dto/update-branch.dto.js';
 import { UpdateBranchStatusDto } from './dto/update-branch-status.dto.js';
-import { Role } from '../../generated/prisma/enums.js';
-
-interface AuthenticatedRequest extends Request {
-    user: {
-        sub: string;
-        role: Role;
-        tokenVersion: number;
-    };
-}
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 
 @Controller('branches')
 @UseGuards(JwtAuthGuard)

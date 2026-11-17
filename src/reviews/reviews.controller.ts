@@ -11,11 +11,11 @@ import {
     UnauthorizedException,
     UseGuards,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { UserRole } from '../common/types/user-role.type.js';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles/roles.guard.js';
-import { Roles, UserRole } from '../auth/decorators/roles.decorator.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
 
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { ModerateReviewDto } from './dto/moderate-review.dto.js';
@@ -23,14 +23,7 @@ import { ReviewQueryDto } from './dto/review-query.dto.js';
 import { UpdateReviewDto } from './dto/update-review.dto.js';
 
 import { ReviewsService } from './reviews.service.js';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: UserRole;
-        tokenVersion: number;
-    };
-}
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -138,7 +131,7 @@ export class ReviewsController {
     private getAuthenticatedUserId(
         request: AuthenticatedRequest,
     ): string {
-        const userId = request.user?.sub;
+        const userId = request.user.sub;
 
         if (!userId) {
             throw new UnauthorizedException('User identity is missing');
@@ -150,7 +143,7 @@ export class ReviewsController {
     private getAuthenticatedUserRole(
         request: AuthenticatedRequest,
     ): UserRole {
-        const role = request.user?.role;
+        const role = request.user.role;
 
         if (!role) {
             throw new UnauthorizedException('User role is missing');

@@ -10,21 +10,10 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 
-import type { Request } from 'express';
-
 import { NotificationsService } from './notifications.service.js';
 import { NotificationQueryDto } from './dto/notification-query.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard.js';
-
-type UserRole = 'CUSTOMER' | 'STAFF' | 'ADMIN';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        sub: string;
-        role: UserRole;
-        tokenVersion: number;
-    };
-}
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -73,7 +62,7 @@ export class NotificationsController {
     private getAuthenticatedUserId(
         request: AuthenticatedRequest,
     ): string {
-        const userId = request.user?.sub;
+        const userId = request.user.sub;
 
         if (!userId) {
             throw new ForbiddenException('User identity is missing');
