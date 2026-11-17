@@ -62,7 +62,7 @@ export class NotificationsController {
     private getAuthenticatedUserId(
         request: AuthenticatedRequest,
     ): string {
-        const userId = request.user.sub;
+        const userId = request.user?.sub;
 
         if (!userId) {
             throw new ForbiddenException('User identity is missing');

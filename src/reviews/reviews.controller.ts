@@ -131,7 +131,7 @@ export class ReviewsController {
     private getAuthenticatedUserId(
         request: AuthenticatedRequest,
     ): string {
-        const userId = request.user.sub;
+        const userId = request.user?.sub;
 
         if (!userId) {
             throw new UnauthorizedException('User identity is missing');
@@ -143,7 +143,7 @@ export class ReviewsController {
     private getAuthenticatedUserRole(
         request: AuthenticatedRequest,
     ): UserRole {
-        const role = request.user.role;
+        const role = request.user?.role;
 
         if (!role) {
             throw new UnauthorizedException('User role is missing');

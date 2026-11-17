@@ -26,7 +26,7 @@ export class StaffScheduleController {
     ) {}
 
     private authorizeAdmin(request: AuthenticatedRequest): void {
-        if (request.user.role !== 'ADMIN') {
+        if (request.user?.role !== 'ADMIN') {
             throw new ForbiddenException(
                 'You do not have permission to perform this action',
             );

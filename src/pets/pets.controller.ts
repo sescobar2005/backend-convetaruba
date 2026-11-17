@@ -88,7 +88,7 @@ export class PetsController {
     private getAuthenticatedUserId(
         request: AuthenticatedRequest,
         ): string {
-        const userId = request.user.sub;
+        const userId = request.user?.sub;
 
         if (!userId) {
             throw new UnauthorizedException('User identity is missing');
@@ -100,7 +100,7 @@ export class PetsController {
     private authorizeStaffAccess(
         request: AuthenticatedRequest,
         ): void {
-        const role = request.user.role;
+        const role = request.user?.role;
 
         if (role !== 'STAFF' && role !== 'ADMIN') {
             throw new ForbiddenException(
