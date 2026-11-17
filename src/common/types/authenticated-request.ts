@@ -1,9 +1,10 @@
 import type { Request } from 'express';
+import type { UserRole } from './user-role.type.js';
 
 export interface AuthenticatedRequest extends Request {
-    user?: {
+    user: {
         sub: string;
-        role: 'CUSTOMER' | 'STAFF' | 'ADMIN';
+        role: UserRole;
         tokenVersion: number;
     };
 }
