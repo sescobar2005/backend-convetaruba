@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, ParseUUIDPipe, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import type { AuthenticatedRequest } from '../../../common/types/authenticated-request.js';

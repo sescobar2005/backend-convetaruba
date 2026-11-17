@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@
 import { ROLES_KEY, UserRole } from "../../decorators/roles.decorator.js";
 import { Reflector } from "@nestjs/core";
 import type { AuthenticatedRequest } from "../../../common/types/authenticated-request.js";
-import { Observable } from "rxjs";
 
 
 @Injectable()
