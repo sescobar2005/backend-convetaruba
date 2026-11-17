@@ -8,7 +8,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
-import type { AuthenticatedRequest } from '../../common/types/authenticated-request.js';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request.js';
 import { LoginDto } from './dto/LoginDto.js';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard.js';
 
